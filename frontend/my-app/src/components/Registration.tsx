@@ -1,12 +1,12 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import Login from "./Login"; 
 
 type FormData = {
   user_name: string;
   email: string;
   password: string;
   phone: string;
+  avatar: string;
 };
 
 function Registration() {
@@ -14,43 +14,41 @@ function Registration() {
     register,
     handleSubmit,
     reset,
-    formState: { errors }
+    formState: { errors, isSubmitting }
   } = useForm<FormData>();
 
   const [message, setMessage] = useState<string>("");
-  const [showLogin, setShowLogin] = useState(false);
-
- const onSubmit = async (data: FormData) => {
+const onSubmit = async (data: FormData) => {
   try {
+
+    const formData = new FormData();
+    formData.append("user_name", data.user_name);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("phone", data.phone);
+    formData.append("avatar", data.avatar[0]);
+
     const res = await fetch("/api/v1/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
+      body: formData
     });
 
     const result = await res.json();
 
     if (!res.ok) {
-      // backend already sends a message field on error
       setMessage(result.message || "Registration failed");
       return;
     }
 
-    // either the backend sent success:true or simply a message
-    setMessage(result.message || "User registered successfully");
+    setMessage("Registration successful! Please login.");
     reset();
-    setShowLogin(true);
+
   } catch (error) {
     setMessage("Server error. Please try again.");
   }
 };
-  if (showLogin) {
-  return <Login />;
-}
-return(
-  <div className="container">
+
+  return (
     <div className="form-card">
       <h2>User Registration</h2>
 
@@ -99,13 +97,25 @@ return(
             <p className="error">{errors.phone.message}</p>
           )}
         </div>
+              <div className="form-group">
+          <input
+            type="file"
+            accept="image/*"
+            {...register("avatar", { required: "Image is required" })}
+          />
 
-        <button type="submit">Register</button>
+          {errors.avatar && (
+            <p className="error">{errors.avatar.message}</p>
+          )}
+        </div>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Registering..." : "Register"}
+        </button>
       </form>
 
       {message && <p className="message">{message}</p>}
     </div>
-  </div>
-);
+  );
 }
+
 export default Registration;

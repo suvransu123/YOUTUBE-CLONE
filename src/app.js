@@ -111,7 +111,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import connectDB from "./db/db.js";
+import connectDB from "./config/db.js";
 import userRoutes from "./routes/user.route.js";
 
 dotenv.config();
@@ -125,5 +125,7 @@ app.use(cookieParser());
 
 // Base route
 app.use("/api/v1", userRoutes);
+app.use("/uploads", express.static("uploads"));
+
 
 export default app;

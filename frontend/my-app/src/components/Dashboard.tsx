@@ -26,14 +26,19 @@ function Dashboard() {
   useEffect(() => {
     const getUsers = async () => {
       try {
-        const res = await fetch("/api/vite/user-dashboard");
+        const res = await fetch("/api/v1/dashboard");
+        if (!res.ok) {
+          setError("Failed to load users.");
+          return;
+        }
         const data = await res.json();
         if (data.success) {
-          setUsers(data.data);
+          setUsers(data.users || data.data || []);
         } else {
           setError("Failed to load users.");
         }
-      } catch {
+      } catch (error) {
+        console.error("Dashboard fetch error:", error);
         setError("Server error. Could not fetch users.");
       } finally {
         setLoading(false);
