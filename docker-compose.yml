@@ -1,0 +1,113 @@
+# version: '3.8'
+
+# services:
+#   db:
+#     image: mongo:latest
+#     restart: always
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - mongodb_data:/data/db
+#     environment:
+#       - MONGO_INITDB_ROOT_USERNAME=admin
+#       - MONGO_INITDB_ROOT_PASSWORD=admin
+#     healthcheck:
+#       test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+#       start_period: 30s  
+#     networks:
+#       - youtube-network   
+#   backend:
+#     build:
+#       context: ./backend
+#       dockerfile: Dockerfile
+#     restart: always  
+#     ports:
+#       - "8000:8000"
+#     env_file:
+#       - ./backend/.env
+#     # No longer depends on local mongodb
+#     depends_on:
+#        db:
+#          condition: service_healthy
+
+#     volumes:
+#        - ./backend/uploads:/app/uploads
+#        - ./backend/logs:/app/logs   
+#     networks:
+#       - youtube-network
+
+#   frontend:
+#     build:
+#       context: ./frontend/my-app
+#       dockerfile: Dockerfile
+#     restart: always  
+#     ports:
+#       - "3000:80" # Map host 3000 to container 80 (Nginx)
+#     depends_on:
+#       - backend
+#     networks:
+#       - youtube-network
+#     volumes:
+#        - mongodb_data  
+# networks:
+#   youtube-network:
+#     driver: bridge
+services:
+  db:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    healthcheck:
+      test: ["CMD", "mongosh", "-u", "admin", "-p", "admin", "--eval", "db.adminCommand('ping')"]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - youtube-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/logs:/app/logs
+    networks:
+      - youtube-network
+
+  frontend:
+    build:
+      context: ./frontend/my-app
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - youtube-network
+
+networks:
+  youtube-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

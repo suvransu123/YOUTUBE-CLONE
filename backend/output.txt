@@ -1,0 +1,9 @@
+[dotenv@17.3.1] injecting env (9) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+✅ Cloudinary configured successfully
+[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+Database connected successfully
+DB Name: undefined
+Server running on port 8000
+Database connected successfully
+DB Name: YOUTUBECLONE
